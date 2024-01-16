@@ -8,5 +8,9 @@
       "instance_group_name": "compute-nodes",
       "partition_name": "dev"
     }
-  ]
+  ],
+  "fsx_dns_name": "fs-0164216387d853904.fsx.us-east-1.amazonaws.com",
+  "fsx_mountname": "2elnbbev",
+  "prometheus_url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-be2fcab6-a485-4fcf-8eed-3d124fb14276/api/v1/remote_write",
+  "prometheus_region": "us-east-1"
 }

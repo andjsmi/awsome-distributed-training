@@ -1,0 +1,14 @@
+[Unit]
+Description=Slurm Exporter
+Documentation=https://github.com/flatironinstitute/slurm-prometheus-exporter/tree/main
+After=network-online.target
+
+[Service]
+User=slurm-exporter
+Group=slurm-exporter
+Restart=on-failure
+Environment=LD_LIBRARY_PATH=/opt/slurm/lib
+ExecStart=/opt/slurm-prometheus-exporter/slurm-exporter  -r -j -N -G
+
+[Install]
+WantedBy=multi-user.target

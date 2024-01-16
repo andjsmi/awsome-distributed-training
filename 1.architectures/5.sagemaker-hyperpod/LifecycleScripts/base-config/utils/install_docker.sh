@@ -25,3 +25,6 @@ sudo apt-get install -y nvidia-container-toolkit
 
 # add user to docker group
 sudo usermod -aG docker ${USER}
+
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker

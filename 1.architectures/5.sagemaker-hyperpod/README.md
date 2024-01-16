@@ -84,10 +84,14 @@ Lifecycle scripts tell SageMaker HyperPod how to setup your cluster. HyperPod cl
 | Script      | Description |
 | ----------- | ----------- |
 | add_users.sh      | [Optional] creates posix users specified in a file shared_users.txt       |
+| install_code_server.sh | Installs Code Server on the head node |
+| install_prometheus.sh | Installs Prometheus and configures it to listen for NVIDIA DCGM or Slurm metrics and push them to a remote server. This runs as a Linux service |
+| install_slurm_exporter.sh | This installs and runs the [prometheus-slurm-exporter](https://github.com/vpenso/prometheus-slurm-exporter) to collect Slurm metrics to be sent to Prometheus |
 | lifecycle_script.py | This is the main entrypoint, sets everything else up. |
 | mount_fsx.sh | Mounts an FSx for Lustre filesystem. |
 | on_create.sh | Entrypoint for clusters. This script calls lifecycle_script.py |
 | provisioning_parameters.json | Defines scheduler type Slurm and sets the partitions up also specifies FSx for Lustre Filesystem to attach. We'll modify this in a later step. |
+| run_dcgm_exporter.sh | Runs Docker container for exporting GPU metrics via DCGM |
 | setup_mariadb_accounting.sh | Sets up Slurm Accounting  with a local mariadb server running on the HeadNode. |
 | setup_rds_accounting.sh | Sets up Slurm Accounting  with a RDS endpoint. |
 | shared_users_sample.txt | Sample of how to specify users for the add_users.sh script. |
@@ -133,6 +137,8 @@ Add both to your `provisioning_parameters.json` file. For example,
   ],
 "fsx_dns_name": "fs-12345678a90b01cde.fsx.us-west-2.amazonaws.com",
 "fsx_mountname": "1abcdefg"
+"prometheus_url": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-qrstuvwxyz/api/v1/remote_write",
+"prometheus_region": "us-east-1"
 }
 ```
 
@@ -180,7 +186,7 @@ cat > cluster-config.json << EOL
 EOL
 ```
 
-And finally, if you created a VPC and FSx for Lustre volume, we need to create a configuration to make sure your cluster is created in the correct VPC. 
+If you created a VPC and FSx for Lustre volume, we need to create a configuration to make sure your cluster is created in the correct VPC. 
 
 ```
 cat > vpc-config.json << EOL
@@ -215,6 +221,20 @@ Your `SECURITY_GROUP` was configured by the VPC CloudFormation stack, and begins
 aws ec2 describe-security-groups \
     --filters 'Name=group-name,Values="SageMakerVPC-SecurityGroup*"' \
               'Name=vpc-id,Values=vpc-0123456789012345a'
+```
+
+And finally, if you created an Amazon Managed Prometheus Workspace, you can get the `PROMETHEUS_URL` from 
+
+```
+aws amp describe-workspace \
+    --workspace-id ws-workspaceid
+
+{
+    "workspace": {  
+        ...
+        "prometheusEndpoint": "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-abcdefghijklmnop/",
+    }
+}
 ```
 
 ### 3.3 Launch Cluster

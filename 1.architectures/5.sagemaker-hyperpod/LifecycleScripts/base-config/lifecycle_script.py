@@ -78,6 +78,14 @@ class ProvisioningParameters:
     @property
     def login_group(self) -> Optional[str]:
         return self._params.get("login_group")
+    
+    @property
+    def prometheus_url(self) -> Optional[str]:
+        return self._params.get("prometheus_url")
+    
+    @property
+    def prometheus_settings(self) -> Tuple[str, str]:
+        return self._params.get("prometheus_url"), self._params.get("prometheus_region")
 
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -148,12 +156,21 @@ def main(args):
 
         if node_type == SlurmNodeType.HEAD_NODE:
             ExecuteBashScript("./setup_mariadb_accounting.sh").run()
+            ExecuteBashScript('./install_code_server.sh').run('ubuntu')
 
         ExecuteBashScript("./start_slurm.sh").run(node_type, ",".join(controllers))
 
+        prometheus_url, prometheus_region = params.prometheus_settings
+
         # Note: Uncomment the below lines to install docker and enroot
-        # ExecuteBashScript("./utils/install_docker.sh").run()
-        # ExecuteBashScript("./utils/install_enroot_pyxis.sh").run(node_type)
+        ExecuteBashScript("./utils/install_docker.sh").run()
+        ExecuteBashScript("./utils/install_enroot_pyxis.sh").run(node_type)
+        ExecuteBashScript('./install_prometheus.sh').run(node_type, prometheus_url, prometheus_region)
+
+        if node_type == SlurmNodeType.HEAD_NODE:
+            ExecuteBashScript('./install_slurm_exporter.sh').run()
+        elif node_type == SlurmNodeType.COMPUTE_NODE:
+            ExecuteBashScript('./run_dcgm_exporter.sh').run()
         
     print("[INFO]: Success: All provisioning scripts completed")
 
