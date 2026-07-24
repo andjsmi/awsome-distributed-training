@@ -91,7 +91,14 @@ To deploy AWS ParallelCluster, you need to be an Administrator user of the AWS a
 #### AWS ParallelCluster CLI for cluster deployment and management
 The AWS ParallelCluster CLI is a command-line tool that helps you deploy and manage HPC clusters on AWS. It provides commands for creating, updating, and deleting clusters, as well as managing cluster resources. The CLI is built on top of the AWS SDK and provides a simple interface for interacting with AWS ParallelCluster. For detailed information about the CLI and its commands, refer to the [AWS ParallelCluster Command Line Interface Reference](https://docs.aws.amazon.com/parallelcluster/latest/ug/commands-v3.html). The CLI requires Python 3.9 or later installed on your local environment.
 
-You can install the AWS ParallelCluster CLI using pip in a Python virtual environment:
+You also need the AWS CLI to configure your credentials (`aws configure`). If it is
+not already available on your machine (run `aws --version` to check), install
+**AWS CLI v2** by following the official
+[Install or update to the latest version of the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+guide, which covers Linux, macOS, and Windows. Note that AWS CLI v2 is *not*
+distributed via pip.
+
+You can then install the AWS ParallelCluster CLI using pip in a Python virtual environment:
 
 
 ```bash
@@ -101,8 +108,7 @@ python3 -m pip install --upgrade pip
 python3 -m pip install --user --upgrade virtualenv
 python3 -m virtualenv ${VIRTUAL_ENV_PATH} # create the virtual env
 source ${VIRTUAL_ENV_PATH}/bin/activate # activate the environment
-pip3 install awscli # install the AWS CLI
-pip3 install aws-parallelcluster==${PCLUSTER_VERSION} # then AWS ParallelCluster
+pip3 install aws-parallelcluster==${PCLUSTER_VERSION} # install AWS ParallelCluster
 ```
 
 #### Reserved accelerated instance capacity (P/Trn instances) through  On-Demand Capacity Reservation (ODCR) or EC2 Capacity Blocks (CB) for ML
